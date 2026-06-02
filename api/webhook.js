@@ -1,9 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { Resend } from 'resend';
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export default async function handler(req, res) {
   // Allow GET verification even if other service keys are not configured.
   if (req.method === 'GET') {
@@ -29,6 +26,9 @@ export default async function handler(req, res) {
     try {
       const leadData = req.body;
       const rawLeadDetails = JSON.stringify(leadData, null, 2);
+
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const resend = new Resend(process.env.RESEND_API_KEY);
 
       const msg = await anthropic.messages.create({
         model: 'claude-3-5-sonnet',
