@@ -5,11 +5,9 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
-  if (!process.env.ANTHROPIC_API_KEY || !process.env.RESEND_API_KEY || !process.env.META_VERIFY_TOKEN) {
-    return res.status(500).json({ error: 'Missing required environment variables.' });
-  }
-
+  // Allow GET verification even if other service keys are not configured.
   if (req.method === 'GET') {
+    console.log('Webhook verification request', { query: req.query });
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
@@ -21,7 +19,13 @@ export default async function handler(req, res) {
     return res.sendStatus(403);
   }
 
+  // For POST, ensure required service keys exist before processing.
   if (req.method === 'POST') {
+    if (!process.env.ANTHROPIC_API_KEY || !process.env.RESEND_API_KEY) {
+      console.error('Missing ANTHROPIC_API_KEY or RESEND_API_KEY for POST processing');
+      return res.status(500).json({ error: 'Missing required service API keys.' });
+    }
+
     try {
       const leadData = req.body;
       const rawLeadDetails = JSON.stringify(leadData, null, 2);
