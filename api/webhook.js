@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       return res.status(200).send(challenge);
     }
 
-    return res.sendStatus(403);
+    return res.status(403).end();
   }
 
   // For POST, ensure required service keys exist before processing.
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
         html: `<pre>${aiAnalysis}</pre>`,
       });
 
-      return res.sendStatus(200);
+      return res.status(200).end();
     } catch (error) {
       console.error('Workflow failed:', error);
       return res.status(500).json({ error: 'Internal server error' });
